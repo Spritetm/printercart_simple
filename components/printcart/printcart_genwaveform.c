@@ -30,7 +30,6 @@ void IRAM_ATTR printcart_fire_nozzle_color(uint8_t *l, int p, int color) {
 	l[byteno+(14*color)]|=(1<<bitno);
 }
 
-
 //Nozzle order data for the black cartridge.
 typedef struct {
 	int c;
@@ -65,7 +64,6 @@ void IRAM_ATTR printcart_fire_nozzle_black(uint8_t *l, int p, int row) {
 
 	l[ni[j].c*14 + bo[ni[j].order][k]] |= (1<<ni[j].bit);
 }
-
 
 //Function to set a value in the output buffer.
 //NOTE: The I2S peripheral in the ESP32 outputs the high 16 bits of a 32-bit word before
@@ -102,7 +100,6 @@ static IRAM_ATTR inline void write_signals(uint16_t *buf, int pos, uint16_t val)
 #define OUT_S3 (1<<9)
 #define OUT_F3 (1<<10)
 #define OUT_F5 (1<<11)
-
 
 
 //This takes a pointer to a buffer of words to send out to the cartridge after eachother.

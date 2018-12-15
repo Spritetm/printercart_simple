@@ -1,3 +1,6 @@
+//Example of the driver routines for HP 63/302/123/803 printer cartridges
+//See http://spritesmods.com/?art=magicbrush for more info.
+
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

@@ -1,8 +1,7 @@
-#ifndef I2S_PARALLEL_H
-#define I2S_PARALLEL_H
-
 #include <stdint.h>
 #include "soc/i2s_struct.h"
+
+#pragma once
 
 /*
 The code here is a simple driver for the I2S parallel mode. It effectively has two buffers of configurable size. It configures the
@@ -39,5 +38,3 @@ void i2s_parallel_setup(i2s_dev_t *dev, const i2s_parallel_config_t *cfg);
 
 //Start sending out data
 void i2s_parallel_start(i2s_dev_t *dev);
-
-#endif

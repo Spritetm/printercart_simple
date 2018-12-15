@@ -1,3 +1,7 @@
+//Quick-and-dirty implementation of a driver for the parallel output mode of the
+//ESP32 I2S peripheral. Note this is only tested on 16-bit parallel output at this
+//moment.
+
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):
@@ -16,7 +20,6 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "freertos/queue.h"
-
 #include "soc/i2s_struct.h"
 #include "soc/i2s_reg.h"
 #include "driver/periph_ctrl.h"
@@ -25,7 +28,6 @@
 #include "esp_heap_caps.h"
 #include "printcart_i2s.h"
 #include "esp_attr.h"
-
 #include "printcart_genwaveform.h"
 
 typedef struct {

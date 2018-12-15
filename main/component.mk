@@ -9,7 +9,6 @@
 
 COMPONENT_EMBED_FILES := picture.rgb
 
-
 $(COMPONENT_PATH)/picture.rgb: $(COMPONENT_PATH)/picture.png
 	convert $^ $@
 

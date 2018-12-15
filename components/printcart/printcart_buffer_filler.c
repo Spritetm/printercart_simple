@@ -1,3 +1,16 @@
+//Implementation of the the I2S buffer fill callback function that grabs new nozzle data from a
+//FreeRTOS queue and uses the printcart_genwaveform code to convert that into a printer
+//cart waveform.
+
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * Jeroen Domburg <jeroen@spritesmods.com> wrote this file. As long as you retain 
+ * this notice you can do whatever you want with this stuff. If we meet some day, 
+ * and you think this stuff is worth it, you can buy me a beer in return. 
+ * ----------------------------------------------------------------------------
+ */
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -44,6 +57,7 @@ const waveform_desc_t waveforms[]={
 static uint16_t *selected_waveform_tpl=waveform_tpl_color_a;
 static int selected_waveform_len=sizeof(waveform_tpl_color_a)/2;
 
+//If we switch waveforms, the buffer needs to be cleared. This being nonzero indicates this.
 int clear_waveform_ct=0;
 
 //Use this to select a different waveform.
@@ -58,6 +72,7 @@ void printcart_select_waveform(enum printcart_buffer_filler_waveform_type_en wav
 void IRAM_ATTR printcart_buffer_filler_fn(void *buf, int len, void *arg) {
 	QueueHandle_t pixq=(QueueHandle_t)arg;
 	portBASE_TYPE high_priority_task_awoken = 0;
+		//Pre-clear waveform buffer, but only when needed.
 	if (clear_waveform_ct) {
 		clear_waveform_ct--;
 		memset(buf, 0, len);
@@ -69,7 +84,9 @@ void IRAM_ATTR printcart_buffer_filler_fn(void *buf, int len, void *arg) {
 		//Nothing in queue. Zero out data so we don't fire any nozzles.
 		memset(nozdata, 0, PRINTCART_NOZDATA_SZ);
 	}
+	//Generate waveform
 	printcart_mem_words_used=printcart_generate_waveform((uint16_t*)buf, selected_waveform_tpl, nozdata, selected_waveform_len);
+	//Wake thread blocking on pixqueue
 	if (high_priority_task_awoken == pdTRUE) {
 		portYIELD_FROM_ISR();
 	}

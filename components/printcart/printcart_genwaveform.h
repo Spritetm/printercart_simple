@@ -1,4 +1,3 @@
-
 /*
 These are routines that manage the waveforms for firing all the nozzles of the cartridge once,
 to essentially fire a 'row' of ink drops. You use this by allocating an uint8_t-sized buffer of
@@ -7,6 +6,8 @@ use printcart_fire_nozzle_color or printcart_fire_nozzle_mono to enable firing a
 Finally, feed the nozzle data to printcart_generate_waveform to generate the actual waveform that
 needs to be sent to the cartridge.
 */
+
+#pragma once
 
 //Size of the nozzle data, in bytes
 #define PRINTCART_NOZDATA_SZ (14*3)
