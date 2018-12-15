@@ -44,17 +44,24 @@ const waveform_desc_t waveforms[]={
 static uint16_t *selected_waveform_tpl=waveform_tpl_color_a;
 static int selected_waveform_len=sizeof(waveform_tpl_color_a)/2;
 
+int clear_waveform_ct=0;
+
 //Use this to select a different waveform.
 void printcart_select_waveform(enum printcart_buffer_filler_waveform_type_en waveform_id) {
+	clear_waveform_ct=3;
 	selected_waveform_tpl=waveforms[waveform_id].data;
 	selected_waveform_len=waveforms[waveform_id].len;
 }
 
 //This gets called from the I2S interrupt. Grab the next color data from the queue
 //and fill the buffer with the corresponding waveform.
-void IRAM_ATTR printcart_buffer_filler_fn(void *buf, void *arg) {
+void IRAM_ATTR printcart_buffer_filler_fn(void *buf, int len, void *arg) {
 	QueueHandle_t pixq=(QueueHandle_t)arg;
 	portBASE_TYPE high_priority_task_awoken = 0;
+	if (clear_waveform_ct) {
+		clear_waveform_ct--;
+		memset(buf, 0, len);
+	}
 	//Fix memory to receive the nozzle color data in
 	uint8_t nozdata[PRINTCART_NOZDATA_SZ];
 	//Receive from queue.

@@ -15,7 +15,7 @@ Callback to refill the buffer that just has been streamed out. Buff is a pointer
 arg is an user-configurable argument that was passed to the i2s_parallel_setup command.
 NOTE: This callback is called in IRQ context!
 */
-typedef int (*i2s_parallel_refill_buffer_cb_t)(void *buff, void *arg);
+typedef void (*i2s_parallel_refill_buffer_cb_t)(void *buff, int len, void *arg);
 
 //Amount of bits for I2S port. Note: anything but 16-bit is untested.
 typedef enum {

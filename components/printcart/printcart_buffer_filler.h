@@ -19,4 +19,4 @@ void printcart_select_waveform(enum printcart_buffer_filler_waveform_type_en wav
 Meant as a callback from the I2S buffer filling code. Fills a buffer with the data from the queue passed as the argument,
 or a 'blank' pattern if the buffer is empty.
 */
-void printcart_buffer_filler_fn(void *buf, void *arg);
+void printcart_buffer_filler_fn(void *buf, int len, void *arg);

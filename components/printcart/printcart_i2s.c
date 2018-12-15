@@ -31,9 +31,9 @@
 typedef struct {
 	volatile lldesc_t *dmadesc_a, *dmadesc_b;
 	int desccount_a, desccount_b;
-
 	i2s_parallel_refill_buffer_cb_t refill_cb;
 	void *refill_cb_arg;
+	int bufsz;
 } i2s_parallel_state_t;
 
 static i2s_parallel_state_t *i2s_state[2]={NULL, NULL};
@@ -195,6 +195,7 @@ void i2s_parallel_setup(volatile i2s_dev_t *dev, const i2s_parallel_config_t *cf
 	//Save buffer fill callback
 	st->refill_cb=cfg->refill_cb;
 	st->refill_cb_arg=cfg->refill_cb_arg;
+	st->bufsz=cfg->bufsz;
 
 	//Note: call i2s_parallel_start to start transmission.
 }
@@ -206,15 +207,15 @@ static void IRAM_ATTR i2s_int_hdl(void *arg) {
 	if (dev->int_st.out_eof) {
 	dev->int_clr.val = dev->int_st.val;
 		lldesc_t *finish_desc = (lldesc_t*)dev->out_eof_des_addr;
-		i2s_state[devno]->refill_cb((void*)finish_desc->buf, i2s_state[devno]->refill_cb_arg);
+		i2s_state[devno]->refill_cb((void*)finish_desc->buf, i2s_state[devno]->bufsz, i2s_state[devno]->refill_cb_arg);
 	}
 }
 
 void i2s_parallel_start(volatile i2s_dev_t *dev) {
 	int devno=i2snum(dev);
 	//Prefill buffers using callback.
-	i2s_state[devno]->refill_cb((void*)i2s_state[devno]->dmadesc_a[0].buf, i2s_state[devno]->refill_cb_arg);
-	i2s_state[devno]->refill_cb((void*)i2s_state[devno]->dmadesc_b[0].buf, i2s_state[devno]->refill_cb_arg);
+	i2s_state[devno]->refill_cb((void*)i2s_state[devno]->dmadesc_a[0].buf, i2s_state[devno]->bufsz, i2s_state[devno]->refill_cb_arg);
+	i2s_state[devno]->refill_cb((void*)i2s_state[devno]->dmadesc_b[0].buf, i2s_state[devno]->bufsz, i2s_state[devno]->refill_cb_arg);
 
    //Reset FIFO/DMA -> needed? Doesn't dma_reset/fifo_reset do this?
 	dev->out_link.stop=1;

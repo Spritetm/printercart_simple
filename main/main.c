@@ -22,9 +22,9 @@
 #include "read_picture.h"
 
 //GPIO numbers for the lines that are connected (via level converters) to the printer cartridge.
-#define PIN_NUM_CART_D1 12
-#define PIN_NUM_CART_D2 27
-#define PIN_NUM_CART_D3 13
+#define PIN_NUM_CART_D2 12
+#define PIN_NUM_CART_D3 27
+#define PIN_NUM_CART_D1 13
 #define PIN_NUM_CART_CSYNC 14
 #define PIN_NUM_CART_S2 32
 #define PIN_NUM_CART_S4 2
@@ -87,18 +87,18 @@ void printcart_init() {
 
 //In the color cartridge, there are three rows, one for each color. They're next to eachother, so we need to take care
 //to grab the bits of image that actually are in the position of the nozzles.
-#define CMY_ROW_OFFSET 32
+#define CMY_ROW_OFFSET 16
 void send_image_row_color(int pos) {
 	uint8_t nozdata[PRINTCART_NOZDATA_SZ];
 	memset(nozdata, 0, PRINTCART_NOZDATA_SZ);
 	for (int c=0; c<3; c++) {
 		for (int y=0; y<84; y++) {
-			uint8_t v=picture_get_pixel(pos-c*CMY_ROW_OFFSET, y*2, c);
+			uint8_t v=picture_get_pixel(pos+c*CMY_ROW_OFFSET, y*2, c);
 			//Note the v returned is 0 for black, 255 for the color. We need to invert that here as we're printing on
 			//white.
 			v=255-v;
 			//Random-dither. The chance of the nozzle firing is equal to (v/256).
-			if (v>(rand()&511)) {
+			if (v>(rand()&255)) {
 				//Note: The actual nozzles for the color cart start around y=14
 				printcart_fire_nozzle_color(nozdata, y+14, c);
 			}
