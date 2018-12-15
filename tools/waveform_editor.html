@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script language="javascript">
+
+var scaleX=40;
+var scaleY=40;
+var signalH=30;
+var notimeslots=32;
+
+function textvals() {
+	var text=document.getElementById("hex").value;
+	var sp=text.split(",");
+	var ret=[];
+	for (var x=0; x<sp.length; x++) {
+		ret[x]=parseInt(sp[x]);
+	}
+	return ret;
+}
+
+
+function cvclick(evt) {
+	var x=parseInt(evt.offsetX/scaleX);
+	var y=parseInt(evt.offsetY/scaleY);
+	var f=textvals();
+	f[x]^=(1<<y);
+
+	var s="";
+	for (var i=0; i<f.length; i++) {
+		if (i!=0) s+=",";
+		s+="0x"+f[i].toString(16);
+	}
+	document.getElementById("hex").value=s;
+	drawcanvas();
+}
+
+
+function drawcanvas() {
+	var c=document.getElementById("mycanvas");
+	var ctx=c.getContext("2d");
+	ctx.clearRect(0,0,scaleX*notimeslots, scaleY*16);
+	var vals=textvals();
+	ctx.lineWidth="1";
+	ctx.fillStyle="#e0e0e0";
+	for (var x=0; x<notimeslots; x++) {
+		ctx.beginPath();
+		ctx.moveTo(x*scaleX, 0);
+		ctx.lineTo(x*scaleX, 16*scaleY);
+		ctx.stroke();
+	}
+	ctx.lineWidth="3";
+	ctx.fillStyle="#000000"
+	for (var y=0; y<16; y++) {
+		ctx.beginPath();
+		for (var x=0; x<notimeslots; x++) {
+			var bit=(vals[x]&(1<<y))?0:1; //warning - inverted to make drawing easier
+			if (x==0) {
+				ctx.moveTo(x*scaleX, y*scaleY+signalH*bit);
+			} else {
+				ctx.lineTo(x*scaleX, y*scaleY+signalH*bit);
+			}
+			ctx.lineTo((x+1)*scaleX, y*scaleY+signalH*bit);
+		}
+		ctx.stroke();
+	}
+	ctx.fillStyle="red";
+	ctx.font="16px sans"
+	var desc=["bit toggle1", "bit toggle2", "na", "na", "S2", "S4", "S1", "S5", "DCLK", "S3", "F3", "F5", "na","na","CSYNC last", "CSYNC norm"];
+	for (var y=0; y<16; y++) {
+		ctx.fillText(desc[y], 10, (y+0.5)*scaleY);
+	}
+}
+
+window.onload=function(e) {
+	drawcanvas();
+	var c=document.getElementById("mycanvas");
+	c.onclick=cvclick;
+}
+
+</script>
+</head>
+<body>
+<p>
+<canvas id="mycanvas" width="1280" height="640"></canvas>
+<br>
+<textarea id="hex" rows="4" cols="80">
+0x2,0xc005,0xc105,0xc146,0x46,0x4005,0x4105,0x4116,0x16,0x4005,0x4105,0x4306,0x606,0x4405,0x4505,0x4526,0x426,0x406,0x4000,0x4000,0x4080,0x880,0x800,0x800,0x800,0x800,0x800
+</textarea><br>
+<button onclick="drawcanvas()">Update graphics from hex</button>
+<p>
+Click on the waveforms to toggle the waveform at that location; the hex data will change alongside. Change the hex data (or copy-paste another hex pattern into the textbox) and press the
+button to update the waveform graphics accordingly.<br>
+The waveform generator will output data bits if (bit_toggle1 | bit_toggle2) != 0. Every time bit_toggle1 and bit_toggle2 change polarity, the next data bit is selected. Also note: The
+pattern here is output 14 times, to send out data for all nozzles. For the first 13 times, CSYNC_norm will be used; for the 14th time, CSYNC_last is used instead.
+</p>
+
+</body>
+</html>
