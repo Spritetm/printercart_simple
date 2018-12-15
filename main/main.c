@@ -8,8 +8,8 @@
  */
 
 //Select the type of printer cartridge by uncommenting the applicable define and commenting the other one.
-#define CART_IS_COLOR 1
-//#define CART_IS_BLACK 1
+//#define CART_IS_COLOR 1
+#define CART_IS_BLACK 1
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -23,8 +23,8 @@
 
 //GPIO numbers for the lines that are connected (via level converters) to the printer cartridge.
 #define PIN_NUM_CART_D2 12
-#define PIN_NUM_CART_D3 27
-#define PIN_NUM_CART_D1 13
+#define PIN_NUM_CART_D1 27
+#define PIN_NUM_CART_D3 13
 #define PIN_NUM_CART_CSYNC 14
 #define PIN_NUM_CART_S2 32
 #define PIN_NUM_CART_S4 2
@@ -78,7 +78,7 @@ void printcart_init() {
 	printcart_select_waveform(PRINTCART_WAVEFORM_COLOR_B);
 #endif
 #ifdef CART_IS_BLACK
-	printcart_select_waveform(PRINTCART_WAVEFORM_BLACK_A);
+	printcart_select_waveform(PRINTCART_WAVEFORM_BLACK_B);
 #endif
 	//Done!
 	printf("Printcart driver inited\n");
@@ -93,7 +93,7 @@ void send_image_row_color(int pos) {
 	memset(nozdata, 0, PRINTCART_NOZDATA_SZ);
 	for (int c=0; c<3; c++) {
 		for (int y=0; y<84; y++) {
-			uint8_t v=picture_get_pixel(pos+c*CMY_ROW_OFFSET, y*2, c);
+			uint8_t v=picture_get_pixel(pos-c*CMY_ROW_OFFSET, y*2, c);
 			//Note the v returned is 0 for black, 255 for the color. We need to invert that here as we're printing on
 			//white.
 			v=255-v;
@@ -109,14 +109,16 @@ void send_image_row_color(int pos) {
 }
 
 //In the mono cartridge, there are two rows of nozzles, slightly offset (in the X direction) from the other.
-#define BLACK_ROW_OFFSET 20
+#define BLACK_ROW_OFFSET 10
 void send_image_row_black(int pos) {
 	uint8_t nozdata[PRINTCART_NOZDATA_SZ];
 	memset(nozdata, 0, PRINTCART_NOZDATA_SZ);
 	for (int row=0; row<2; row++) {
 		for (int y=0; y<168; y++) {
-			//We take anything but white in the 1st color channel of the image to mean we want black there.
-			if (picture_get_pixel(pos+row*BLACK_ROW_OFFSET, y, 0)!=0xff) {
+			//We take anything but white in any color channel of the image to mean we want black there.
+			if (picture_get_pixel(pos+row*BLACK_ROW_OFFSET, y, 0)!=0xff ||
+				picture_get_pixel(pos+row*BLACK_ROW_OFFSET, y, 1)!=0xff ||
+				picture_get_pixel(pos+row*BLACK_ROW_OFFSET, y, 2)!=0xff) {
 				//Random-dither 50%, as firing all nozzles is a bit hard on the power supply.
 				if (rand()&1) {
 					printcart_fire_nozzle_black(nozdata, y, row);
