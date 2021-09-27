@@ -18,6 +18,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "freertos/queue.h"
+#include <driver/gpio.h>
 #include <string.h>
 #include "printcart_buffer_filler.h"
 #include "printcart_genwaveform.h"
