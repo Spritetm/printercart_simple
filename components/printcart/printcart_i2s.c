@@ -29,6 +29,8 @@
 #include "soc/gpio_sig_map.h"
 #include "esp_intr_alloc.h"
 #include "driver/gpio.h"
+#include "soc/gpio_periph.h"
+#include "rom/gpio.h"
 #include "printcart_i2s.h"
 #include "esp_attr.h"
 #include "printcart_genwaveform.h"
