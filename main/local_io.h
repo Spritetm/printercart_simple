@@ -1,0 +1,1 @@
+void local_io_init();

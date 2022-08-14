@@ -11,8 +11,8 @@
  */
 
 //Select the type of printer cartridge by uncommenting the applicable define and commenting the other one.
-//#define CART_IS_COLOR 1
-#define CART_IS_BLACK 1
+#define CART_IS_COLOR 1
+//#define CART_IS_BLACK 1
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -24,6 +24,7 @@
 #include "printcart_genwaveform.h"
 #include "printcart_i2s.h"
 #include "read_picture.h"
+#include "local_io.h"
 
 //GPIO numbers for the lines that are connected (via level converters) to the printer cartridge.
 #define PIN_NUM_CART_D2 12
@@ -171,6 +172,8 @@ void mainloop(void *arg) {
 }
 
 int app_main(void) {
+	//Initialize whatever the board needs to initialize
+	local_io_init();
 	//Initialize button GPIO
 	button_init();
 	//Initialize printer cartridge driver and install the interrupt for it.
