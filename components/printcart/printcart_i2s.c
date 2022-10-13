@@ -113,13 +113,17 @@ void i2s_parallel_setup(volatile i2s_dev_t *dev, const i2s_parallel_config_t *cf
 	}
 
 	//Route the signals from the selected I2S bus to the GPIOs
+	//Because of... reasons... the 16-bit values appear on d8...d23
 	if (dev==&I2S0) {
-		sig_data_base=I2S0O_DATA_OUT0_IDX;
+		if (cfg->bits==I2S_PARALLEL_BITS_32) {
+			sig_data_base=I2S0O_DATA_OUT0_IDX;
+		} else {
+			sig_data_base=I2S0O_DATA_OUT8_IDX;
+		}
 	} else {
 		if (cfg->bits==I2S_PARALLEL_BITS_32) {
 			sig_data_base=I2S1O_DATA_OUT0_IDX;
 		} else {
-			//Because of... reasons... the 16-bit values for i2s1 appear on d8...d23
 			sig_data_base=I2S1O_DATA_OUT8_IDX;
 		}
 	}
